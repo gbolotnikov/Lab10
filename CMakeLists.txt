@@ -10,7 +10,13 @@ find_package(Boost REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(bulk_server main.cpp)
+add_executable(bulk_server main.cpp
+    Server.cpp
+    Session.cpp
+    StreamReader.cpp
+    FileWriter.cpp
+    CommandManager.cpp
+ )
 
 set_target_properties(bulk_server PROPERTIES
     CXX_STANDARD 17

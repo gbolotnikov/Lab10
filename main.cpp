@@ -1,6 +1,6 @@
 #include <boost/program_options.hpp>
 #include <boost/asio.hpp>
-
+#include "Include/Server.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
             return 0;
         }
         boost::asio::io_service io_context;
-        // my::Server server(io_context, context.port, context.bulkSize);
+        Server server(io_context, context.port, context.bulkSize);
         io_context.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

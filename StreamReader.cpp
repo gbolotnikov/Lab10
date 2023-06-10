@@ -1,18 +1,18 @@
 #include <iostream>
-#include "ConsoleReader.hpp"
+#include "Include/StreamReader.hpp"
 
-ConsoleReader::ConsoleReader(IManager& cmdManager, size_t commandCount): 
+StreamReader::StreamReader(IManager& cmdManager, size_t commandCount): 
 _cmdManager(cmdManager),
 _commandCount(commandCount)
 {
 
 }
 
-void ConsoleReader::setStream(std::istream& input) {
-    _input = &input;
+void StreamReader::setStream(std::shared_ptr<std::istream> input) {
+    _input = std::move(input);
 }
 
-void ConsoleReader::read() {
+void StreamReader::read() {
     std::string line;
     while (std::getline(*_input, line)) {
         if (line == "{") {
@@ -31,15 +31,15 @@ void ConsoleReader::read() {
     }
 }
 
-void ConsoleReader::notifyNewCommand(std::string_view cmd) {
+void StreamReader::notifyNewCommand(std::string_view cmd) {
     _cmdManager.newCommand(cmd);
 }
 
-void ConsoleReader::notifyEndCommand() {
+void StreamReader::notifyEndCommand() {
     _cmdManager.endCommand();
 }
 
-void ConsoleReader::openBrace() {
+void StreamReader::openBrace() {
     _linesCount = 0;
     ++_bracesCount;
     if (_bracesCount == 1) {
@@ -47,7 +47,7 @@ void ConsoleReader::openBrace() {
     }
 }
 
-void ConsoleReader::closeBrace() {
+void StreamReader::closeBrace() {
     _linesCount = 0;
     --_bracesCount;
     if (_bracesCount == 0) {

@@ -1,16 +1,17 @@
 #ifndef CONSOLE_READER_HPP
 #define CONSOLE_READER_HPP
 
+#include <memory>
 #include <iostream>
 #include "Interfaces/Manager.hpp"
 
-class ConsoleReader {
+class StreamReader {
 public:
     void read();
     void notifyEndCommand();
-    void setStream(std::istream& input);
-    ConsoleReader(IManager& cmdManager, size_t commandCount);
-    ~ConsoleReader() {
+    void setStream(std::shared_ptr<std::istream> input);
+    StreamReader(IManager& cmdManager, size_t commandCount);
+    ~StreamReader() {
         // std::cout << "Destroy Reader" << std::endl;
     }       
 private:    
@@ -22,7 +23,7 @@ private:
     IManager& _cmdManager;
     size_t _linesCount = 0;
     size_t _bracesCount = 0;
-    std::istream* _input = {&std::cin};
+    std::shared_ptr<std::istream> _input;
     std::vector<std::string> _commands;
     static std::vector<std::string> _commonCommands;
     

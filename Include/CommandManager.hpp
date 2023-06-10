@@ -9,7 +9,7 @@
 
 // нужно делать через сингл тон возьми у Паскаля этот класс
 
-class CommandManager: public IManager{
+class CommandManager: public IManager { 
 public:
     void addWriter(const IWriter& writer) override;
     void addWriter(const FileWriter& writer);
@@ -21,7 +21,6 @@ public:
         // std::cout << "Destroy CommandManager" << std::endl;
     }
 private:
-
     void notifyWriter();
     void process(std::string out, size_t timeStamp, uint8_t id);
 
