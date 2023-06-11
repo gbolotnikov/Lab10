@@ -24,12 +24,22 @@ set_target_properties(bulk_server PROPERTIES
 )
 
 target_include_directories(bulk_server PRIVATE "${CMAKE_BINARY_DIR}")
+
+if(WIN32)
 target_link_libraries(bulk_server PRIVATE 
     ws2_32
     wsock32 
     ${Boost_LIBRARIES} 
     Boost::program_options 
     stdc++fs)
+else()
+target_link_libraries(bulk_server PRIVATE 
+    ${Boost_LIBRARIES} 
+    Boost::program_options 
+    stdc++fs)
+endif()
+
+
 
 install(TARGETS bulk_server RUNTIME DESTINATION bin)
 
