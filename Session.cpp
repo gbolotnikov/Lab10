@@ -1,10 +1,13 @@
+#include <sstream>
+#include <memory>
 #include "Include/Session.hpp"
 #include "Include/CommonManager.hpp"
-#include <sstream>
 
-Session::Session(std::size_t bulk, tcp::socket socket)
+
+Session::Session(std::atomic<std::uint32_t>& sessionCnt, std::size_t bulk, tcp::socket socket)
     : _socket(std::move(socket)),
-    _reader(CommonManager::instance().getManager(), bulk)
+    _reader(CommonManager::instance().getManager(), bulk),
+    _sessionCnt(sessionCnt)
 {
 }
 
@@ -13,6 +16,7 @@ void Session::start()
     do_read();
 }
 
+// копится же список вызовов do_read, на стеке  
 void Session::do_read()
 {
     auto self(shared_from_this());
@@ -27,10 +31,15 @@ void Session::do_read()
                 if (pos == std::string_view::npos) {
                     return;
                 }
-                std::istringstream input(std::move(_streamStr));
-                // _streamStr.clear();
-                // m_controller.receive(m_buffer, length);
+                std::istringstream input(_streamStr);
+                _streamStr.clear();
+                _reader.setStream(input);
+                _reader.read();
                 do_read();
+            } else {
+                if (--_sessionCnt == 0) {
+                    _reader.notifyEndCommand();
+                }
             }
         });
 }

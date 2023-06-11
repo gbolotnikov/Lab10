@@ -17,6 +17,7 @@ private:
 
     tcp::acceptor _acceptor;
     std::size_t _bulk;
+    std::atomic<std::uint32_t> _sessionCnt{0};
 };
 
 #endif

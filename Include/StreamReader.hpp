@@ -9,7 +9,7 @@ class StreamReader {
 public:
     void read();
     void notifyEndCommand();
-    void setStream(std::shared_ptr<std::istream> input);
+    void setStream(std::istream& _input);
     StreamReader(IManager& cmdManager, size_t commandCount);
     ~StreamReader() {
         // std::cout << "Destroy Reader" << std::endl;
@@ -21,11 +21,10 @@ private:
     
     size_t _commandCount;
     IManager& _cmdManager;
-    size_t _linesCount = 0;
     size_t _bracesCount = 0;
-    std::shared_ptr<std::istream> _input;
-    std::vector<std::string> _commands;
-    static std::vector<std::string> _commonCommands;
+    std::istream* _input;
+    static size_t _linesCount;
+    std::vector<std::string> _myCommands;
     
 
 };

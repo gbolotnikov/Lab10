@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Include/StreamReader.hpp"
 
+size_t StreamReader::_linesCount = 0;
+
 StreamReader::StreamReader(IManager& cmdManager, size_t commandCount): 
 _cmdManager(cmdManager),
 _commandCount(commandCount)
@@ -8,8 +10,8 @@ _commandCount(commandCount)
 
 }
 
-void StreamReader::setStream(std::shared_ptr<std::istream> input) {
-    _input = std::move(input);
+void StreamReader::setStream(std::istream& input) {
+    _input = &input;
 }
 
 void StreamReader::read() {

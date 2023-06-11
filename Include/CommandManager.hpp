@@ -24,9 +24,10 @@ private:
     void notifyWriter();
     void process(std::string out, size_t timeStamp, uint8_t id);
 
+    std::mutex _mutex;
     ThreadPool _worker {8};   
     size_t _firstCmdtimeStamp;
-    
+    std::vector<std::string> _commands;
     std::unordered_set<const IWriter*> _writers;
     std::unordered_set<const FileWriter*> _fileWriters;
 

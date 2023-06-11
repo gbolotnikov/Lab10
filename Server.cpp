@@ -8,6 +8,7 @@ Server::Server(boost::asio::io_service& io_context, short port, std::size_t bulk
     do_accept();
 }
 
+// не могу понять почему не рекурсия
 void Server::do_accept()
 {
     _acceptor.async_accept(
@@ -15,9 +16,9 @@ void Server::do_accept()
         {
             if (!ec)
             {
-                std::make_shared<Session>(_bulk, std::move(socket))->start();
+                _sessionCnt++;
+                std::make_shared<Session>(_sessionCnt, _bulk, std::move(socket))->start();
             }
-
             do_accept();
         });
 }

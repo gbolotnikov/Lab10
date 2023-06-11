@@ -13,7 +13,7 @@ using boost::asio::ip::tcp;
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-    Session(std::size_t bulk, tcp::socket socket);
+    Session(std::atomic<std::uint32_t>& sessionCnt, std::size_t bulk, tcp::socket socket);
     void start();
 
 private:
@@ -24,7 +24,7 @@ private:
     char _buffer[BUFFER_SIZE];
     std::string _streamStr;
     StreamReader _reader;
-    // RawDataHandler m_controller;
+    std::atomic<std::uint32_t>& _sessionCnt;
 };
 
 #endif // NETWORK_SESSION_H

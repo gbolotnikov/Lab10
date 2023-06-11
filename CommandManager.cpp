@@ -13,15 +13,17 @@ void CommandManager::addWriter(const FileWriter& writer) {
 }
 
 void CommandManager::newCommand(std::string_view cmd) {
-    // if (_commands.empty()) {
-    //     _firstCmdtimeStamp = std::time(nullptr);
-    // }
-    // _commands.push_back(std::move(cmd.data()));
+    std::lock_guard lock(_mutex);
+    if (_commands.empty()) {
+        _firstCmdtimeStamp = std::time(nullptr);
+    }
+    _commands.push_back(std::move(cmd.data()));
 }
 
 void CommandManager::endCommand() {
+    std::lock_guard lock(_mutex);
     notifyWriter();
-    // _commands.clear();
+    _commands.clear();
 }
 
 void CommandManager::process(std::string out, size_t timeStamp, uint8_t id) {
@@ -34,19 +36,19 @@ void CommandManager::process(std::string out, size_t timeStamp, uint8_t id) {
 }
 
 void CommandManager::notifyWriter() {
-    // if (_commands.empty()) {
-    //     return;
-    // }
-    // std::string out("bulk: ");
-    // for (auto it = _commands.begin(); it != _commands.end(); ++it) {
-    //     if (it != _commands.begin()) {
-    //         out += ", ";
-    //     }
-    //     out += *it;
-    // }
-    // auto job = [this, out](uint8_t id)
-    // {
-    //     this->process(std::move(out), _firstCmdtimeStamp, id);
-    // };
-    // _worker.enqueue(job);
+    if (_commands.empty()) {
+        return;
+    }
+    std::string out("bulk: ");
+    for (auto it = _commands.begin(); it != _commands.end(); ++it) {
+        if (it != _commands.begin()) {
+            out += ", ";
+        }
+        out += *it;
+    }
+    auto job = [this, out](uint8_t id)
+    {
+        this->process(std::move(out), _firstCmdtimeStamp, id);
+    };
+    _worker.enqueue(job);
 }
