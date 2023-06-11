@@ -13,17 +13,34 @@ void CommandManager::addWriter(const FileWriter& writer) {
 }
 
 void CommandManager::newCommand(std::string_view cmd) {
-    std::lock_guard lock(_mutex);
     if (_commands.empty()) {
         _firstCmdtimeStamp = std::time(nullptr);
     }
     _commands.push_back(std::move(cmd.data()));
 }
 
-void CommandManager::endCommand() {
-    std::lock_guard lock(_mutex);
-    notifyWriter();
-    _commands.clear();
+void CommandManager::endCommand(const std::vector<std::string>& commands) {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+    notifyWriter(commands);
+    _linesCount = 0;
+}
+
+void CommandManager::processCommonCmd() {
+    endCommand(_commands);
+}
+
+void CommandManager::setBulkSize(size_t commandCount) {
+    _commandCount = commandCount;
+}
+
+void CommandManager::addCommand(std::string_view line) {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+    ++_linesCount;
+    newCommand(line);
+    if (_linesCount == _commandCount) {
+        endCommand(_commands);
+        _commands.clear();
+    }
 }
 
 void CommandManager::process(std::string out, size_t timeStamp, uint8_t id) {
@@ -35,13 +52,13 @@ void CommandManager::process(std::string out, size_t timeStamp, uint8_t id) {
     };
 }
 
-void CommandManager::notifyWriter() {
-    if (_commands.empty()) {
+void CommandManager::notifyWriter(const std::vector<std::string>& commands) {
+    if (commands.empty()) {
         return;
     }
     std::string out("bulk: ");
-    for (auto it = _commands.begin(); it != _commands.end(); ++it) {
-        if (it != _commands.begin()) {
+    for (auto it = commands.begin(); it != commands.end(); ++it) {
+        if (it != commands.begin()) {
             out += ", ";
         }
         out += *it;

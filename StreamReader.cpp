@@ -1,11 +1,8 @@
 #include <iostream>
 #include "Include/StreamReader.hpp"
 
-size_t StreamReader::_linesCount = 0;
-
-StreamReader::StreamReader(IManager& cmdManager, size_t commandCount): 
-_cmdManager(cmdManager),
-_commandCount(commandCount)
+StreamReader::StreamReader(IManager& cmdManager): 
+_cmdManager(cmdManager)
 {
 
 }
@@ -23,36 +20,35 @@ void StreamReader::read() {
         else if (line == "}") {
             closeBrace();
         } else {
-            ++_linesCount;
-            notifyNewCommand(line);
-            if (_linesCount == _commandCount && _bracesCount == 0) {
-                _linesCount = 0;
-                notifyEndCommand();
-            }
+            addCommand(line);
         }
     }
 }
 
-void StreamReader::notifyNewCommand(std::string_view cmd) {
-    _cmdManager.newCommand(cmd);
+void StreamReader::addCommand(std::string_view cmd) {
+    if (_bracesCount == 0) {
+        _cmdManager.addCommand(cmd);
+    } else {
+        _myCommands.push_back(std::move(cmd.data()));
+    }
 }
 
 void StreamReader::notifyEndCommand() {
-    _cmdManager.endCommand();
+    _cmdManager.endCommand(_myCommands);
+    _myCommands.clear();
 }
 
 void StreamReader::openBrace() {
-    _linesCount = 0;
     ++_bracesCount;
     if (_bracesCount == 1) {
-        notifyEndCommand();
+        _cmdManager.processCommonCmd();
     }
 }
 
 void StreamReader::closeBrace() {
-    _linesCount = 0;
     --_bracesCount;
     if (_bracesCount == 0) {
-        notifyEndCommand();
+        _cmdManager.endCommand(_myCommands);
+        _myCommands.clear();
     }
 }

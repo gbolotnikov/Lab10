@@ -6,9 +6,10 @@
 
 Session::Session(std::atomic<std::uint32_t>& sessionCnt, std::size_t bulk, tcp::socket socket)
     : _socket(std::move(socket)),
-    _reader(CommonManager::instance().getManager(), bulk),
+    _reader(CommonManager::instance().getManager()),
     _sessionCnt(sessionCnt)
 {
+    CommonManager::instance().getManager().setBulkSize(bulk);
 }
 
 void Session::start()
@@ -37,8 +38,9 @@ void Session::do_read()
                 _reader.read();
                 do_read();
             } else {
+                _reader.notifyEndCommand();
                 if (--_sessionCnt == 0) {
-                    _reader.notifyEndCommand();
+                    CommonManager::instance().getManager().processCommonCmd();
                 }
             }
         });
