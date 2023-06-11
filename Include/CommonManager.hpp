@@ -13,15 +13,19 @@ public:
         return _commandManager;
     }
 
+    ~CommonManager() {
+        _commandManager.processCommonCmd();
+    }
+
 private:
     CommonManager() {
         _commandManager.addWriter(_consoleWriter);
         _commandManager.addWriter(_fileWriter);
     }
     friend Singletone<CommonManager>;
-    CommandManager _commandManager;
     ConsoleWriter _consoleWriter;
     FileWriter _fileWriter = {"bulk"};
+    CommandManager _commandManager;
 };
 
 #endif

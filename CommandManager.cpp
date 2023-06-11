@@ -22,7 +22,7 @@ void CommandManager::newCommand(std::string_view cmd) {
 void CommandManager::endCommand(const std::vector<std::string>& commands) {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     notifyWriter(commands);
-    _linesCount = 0;
+    
 }
 
 void CommandManager::processCommonCmd() {
@@ -35,9 +35,8 @@ void CommandManager::setBulkSize(size_t commandCount) {
 
 void CommandManager::addCommand(std::string_view line) {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
-    ++_linesCount;
     newCommand(line);
-    if (_linesCount == _commandCount) {
+    if (_commands.size() == _commandCount) {
         endCommand(_commands);
         _commands.clear();
     }

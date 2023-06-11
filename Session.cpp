@@ -39,9 +39,12 @@ void Session::do_read()
                 do_read();
             } else {
                 _reader.notifyEndCommand();
-                if (--_sessionCnt == 0) {
-                    CommonManager::instance().getManager().processCommonCmd();
-                }
+                // не знаю нужно или нет по-идее сервер еще крутится
+                // хорошо бы в деструктор запихнуть вот это вот все 
+                // if (--_sessionCnt == 0) {
+                //     CommonManager::instance().getManager().processCommonCmd();
+                // }
+                _streamStr.clear();
             }
         });
 }

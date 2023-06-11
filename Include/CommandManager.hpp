@@ -29,7 +29,6 @@ private:
     std::recursive_mutex _mutex;
     ThreadPool _worker {8};   
     size_t _firstCmdtimeStamp;
-    size_t _linesCount;
     size_t _commandCount;
     std::vector<std::string> _commands;
     std::unordered_set<const IWriter*> _writers;
